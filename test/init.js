@@ -1,12 +1,13 @@
+var expect = require('chai').expect;
 var AWS = require('aws-sdk');
 AWS.config.update({ accessKeyId: 'key', secretAccessKey: 'secret', region: 'us-east-1' });
 
 var DynamoDB = require(process.cwd() + '/lib');
+var user = require(process.cwd() + '/test/dummy/user');
 
+var instance;
 describe('Init', function() {
-  var instance;
-
-  it('Should allow init', function(done) {
+  before('Init DynamoDB', function() {
     instance = new DynamoDB({
       env: 'dev',
       database: 'biem',
@@ -19,26 +20,35 @@ describe('Init', function() {
         })
       }
     });
+  });
 
-    var User = instance.model('Users', {
-      year: {
-        type: DynamoDB.types.Number,
-        index: DynamoDB.types.Hash
-      },
-      title: {
-        type: DynamoDB.types.String,
-        index: DynamoDB.types.Range
-      }
-    }, {
-      readCapacity: 10,
-      writeCapacity: 20
-    });
+  it('Should have the appropriate env, database and models set', function() {
+    expect(instance).to.have.property('env');
+    expect(instance.env).to.equal('dev');
+    expect(instance).to.have.property('database');
+    expect(instance.database).to.equal('biem');
+    expect(instance).to.have.property('dynamodb');
+    expect(instance.dynamodb).to.have.property('db');
+    expect(instance.dynamodb).to.have.property('client');
+    expect(Object.keys(instance.models)).to.have.length(0);
+  });
 
-    instance.sync(function() {
-      User.put({
-        year: 2017,
-        title: 'Dana'
-      }, done);
+  it('Should update models dictionary when a model gets defined', function(done) {
+    instance.model('Users', user.definition, user.options);
+    var models = Object.keys(instance.models);
+    expect(models).to.have.length(1);
+    expect(models).to.include('Users');
+    done();
+  });
+
+  it('Should sync models', function(done) {
+    instance.sync(function(err) {
+      expect(err).to.be.a('null');
+      done();
     });
+  });
+
+  after(function() {
+    global.instance = instance;
   });
 });
