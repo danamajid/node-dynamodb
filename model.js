@@ -11,7 +11,6 @@ Model.compile = function(globals) {
 
   model.__proto__ = Model;
   model.prototype.__proto__ = Model.prototype;
-  model.model = Model.prototype.model;
 
   // Apply all global properties/methods
   var dependencies = Object.keys(globals);
