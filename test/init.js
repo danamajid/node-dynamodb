@@ -10,9 +10,14 @@ describe('Init', function() {
     instance = new DynamoDB({
       env: 'dev',
       database: 'biem',
-      dynamodb: new AWS.DynamoDB({
-        endpoint: new AWS.Endpoint('http://localhost:8000')
-      })
+      dynamodb: {
+        db: new AWS.DynamoDB({
+          endpoint: new AWS.Endpoint('http://localhost:8000')
+        }),
+        client: new AWS.DynamoDB.DocumentClient({
+          endpoint: new AWS.Endpoint('http://localhost:8000')
+        })
+      }
     });
 
     var User = instance.model('Users', {
@@ -31,6 +36,7 @@ describe('Init', function() {
 
     instance.sync(function() {
       User.put({
+        year: 2017,
         title: 'Dana'
       }, done);
     });

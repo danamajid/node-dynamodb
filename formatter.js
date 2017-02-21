@@ -2,39 +2,79 @@ var types = require(process.cwd() + '/types');
 
 function Formatter() {}
 
-Formatter.prototype.schema = function(tableName, definition, options) {
-  var keySchema = [], attributeDefinitions = [];
-  var keys = Object.keys(definition);
-  for (var i in keys) {
-    var vals = definition[keys[i]];
+Formatter.prototype.table = function(tableName, definition, options) {
+  var keySchema = [], attributeDefinitions = [], keys = {};
+  var definitions = Object.keys(definition);
+  for (var i in definitions) {
+    var vals = definition[definitions[i]];
     if (vals.index === types.Hash || vals.index === types.Range) {
       keySchema.push({
-        AttributeName: keys[i],
+        AttributeName: definitions[i],
         KeyType: vals.index
       });
     }
 
+    keys[definitions[i]] = vals.type;
     attributeDefinitions.push({
-      AttributeName: keys[i],
+      AttributeName: definitions[i],
       AttributeType: vals.type
     });
   }
 
   return {
-    TableName: tableName,
-    KeySchema: keySchema,
-    AttributeDefinitions: attributeDefinitions,
-    ProvisionedThroughput: {
-      ReadCapacityUnits: options.readCapacity,
-      WriteCapacityUnits: options.writeCapacity
+    keys: keys,
+    schema: {
+      TableName: tableName,
+      KeySchema: keySchema,
+      AttributeDefinitions: attributeDefinitions,
+      ProvisionedThroughput: {
+        ReadCapacityUnits: options.readCapacity,
+        WriteCapacityUnits: options.writeCapacity
+      }
     }
   };
 };
 
-Formatter.prototype.operation = function(tableName, item) {
+Formatter.prototype.putItem = function(tableName, rawItem, table) {
+  var item = {};
+
+  var itemKeys = Object.keys(rawItem);
+  for (var i in itemKeys) {
+    var key = itemKeys[i];
+    if (!item[key]) {
+      item[key] = {};
+    }
+
+    var val = rawItem[key];
+    if (typeof val === 'number') {
+      val = val.toString();
+    }
+
+    item[key][table.keys[key]] = val;
+  }
+
   return {
     TableName: tableName,
     Item: item
+  };
+};
+
+Formatter.prototype.getItem = function(tableName, rawItem, table) {
+  var item = {};
+
+  var itemKeys = Object.keys(rawItem);
+  for (var i in itemKeys) {
+    var key = itemKeys[i];
+    if (!item[key]) {
+      item[key] = {};
+    }
+
+    item[key][table.keys[key]] = rawItem[key];
+  }
+
+  return {
+    TableName: tableName,
+    Key: item
   };
 };
 

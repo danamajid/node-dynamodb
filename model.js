@@ -26,20 +26,25 @@ Model.compile = function(globals) {
 
   // Generate table name
   this.tableName = [model.env, model.database, model.modelName].join('.');
-  this.tableSchema = formatter.schema(this.tableName, model.definition, model.options);
+  this.table = formatter.table(this.tableName, model.definition, model.options);
 
   return model;
 };
 
 Model.prototype.put = function(details, done) {
   this.logger.trace('Create model');
-  //this.connection.
-  done();
+  this.connection.db.putItem(
+    formatter.putItem(this.tableName, details, this.table),
+    done
+  );
 };
 
 Model.prototype.get = function(details, done) {
-  this.logger.trace('Create model');
-  done();
+  this.logger.trace('Get model');
+  this.connection.db.getItem(
+    formatter.getItem(this.tableName, details, this.table),
+    done
+  );
 };
 
 module.exports = Model;

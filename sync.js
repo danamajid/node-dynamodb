@@ -9,7 +9,7 @@ function Sync(model, connection, logger) {
 Sync.prototype.setupTable = function(done) {
   var self = this;
 
-  this.connection.createTable(this.model.tableSchema, function(err) {
+  this.connection.db.createTable(this.model.table.schema, function(err) {
     if (err) {
       if (err.code === 'ResourceInUseException') {
         // Table already exists
@@ -35,7 +35,7 @@ Sync.prototype._waitForTable = function(done, retry) {
     retry = 0;
   }
 
-  this.connection.describeTable(
+  this.connection.db.describeTable(
     { TableName: self.model.tableName },
     function(err, details) {
       if (err) {
