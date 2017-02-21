@@ -34,7 +34,7 @@ Define your model.
 __Example:__
 
 ```js
-var Movie = instance.model('Movies', {
+var Movie = dynamodb.model('Movies', {
   year: {
     type: DynamoDB.types.Number,
     index: DynamoDB.types.Hash
@@ -57,7 +57,7 @@ Sync your defined models.
 __Example:__
 
 ```js
-instance.sync(function(err) {
+dynamodb.sync(function(err) {
   console.log(err);
 });
 ```
@@ -74,3 +74,16 @@ Movie.put({
   title: 'A beautiful mind'
 }, done);
 ```
+
+#### Author
+
+* Contact: [hi@danamajid.com][1]
+* Twitter: [http://twitter.com/dnmjd][2] 
+
+  [1]: mailto:hi@danamajid.com
+  [2]: http://twitter.com/dnmjd
+
+
+#### Credits
+
+Shout out to [Nathan Peck](https://github.com/nathanpeck) for sharing his exploration project
