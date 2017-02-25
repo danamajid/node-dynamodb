@@ -49,7 +49,13 @@ DynamoDB.prototype.connect = function(options, callback) {
   this.database = options.database;
   this.env = options.env;
 
-  Sync.perform(this, callback);
+  Sync.perform(this, function(err, syncStats) {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null, { sync: syncStats });
+  });
 };
 
 DynamoDB.prototype.Schema = function(definition, options) {

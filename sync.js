@@ -11,7 +11,7 @@ Sync.prototype.setupTable = function(model, done) {
         if (err) {
           if (err.code === 'ResourceInUseException') {
             // Table already exists
-            return done();
+            return done(null, { operation: 'none' });
           }
 
           self.logger.error(err);
@@ -43,7 +43,7 @@ Sync.prototype._waitForTable = function(model, done, retry) {
 
       if (details.Table.TableStatus.toLowerCase() === 'active') {
         // The table is ready to go.
-        return done();
+        return done(null, { operation: 'created', afterRetry: retry });
       }
 
       if (retry > 10) {
@@ -65,21 +65,35 @@ Sync.prototype.perform = function(instance, callback) {
   var self = this;
 
   var models = Object.keys(this.models);
+  var stats = {
+    none: [],
+    updated: [],
+    created: []
+  };
+
   if (models.length) {
     async.eachSeries(
       this.models,
       function(model, next) {
-        self.setupTable(model, next);
+        self.setupTable(model, function(err, info) {
+          if (err) {
+            return next(err);
+          }
+
+          stats[info.operation].push(model.modelName);
+          next();
+        });
       },
-      callback
+      function(err) {
+        if (err) {
+          return callback(err);
+        }
+
+        callback(null, stats);
+      }
     );
   } else {
-    return callback(null, {
-      sync: {
-        updated: 0,
-        created: 0
-      }
-    });
+    return callback(null, stats);
   }
 };
 

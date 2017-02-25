@@ -21,10 +21,12 @@ describe('Init', function() {
     DynamoDB.connect(options, function(err, result) {
       expect(err).to.be.a('null');
       expect(result).to.have.property('sync');
+      expect(result.sync).to.have.property('none');
+      expect(result.sync.none.length).to.equal(0);
       expect(result.sync).to.have.property('updated');
-      expect(result.sync.updated).to.equal(0);
+      expect(result.sync.updated.length).to.equal(0);
       expect(result.sync).to.have.property('created');
-      expect(result.sync.created).to.equal(0);
+      expect(result.sync.created.length).to.equal(0);
       done();
     });
   });
@@ -50,8 +52,15 @@ describe('Init', function() {
   });
 
   it('Should sync models after model is defined', function(done) {
-    DynamoDB.connect(options, function(err, results) {
+    DynamoDB.connect(options, function(err, result) {
       expect(err).to.be.a('null');
+      expect(result).to.have.property('sync');
+      expect(result.sync).to.have.property('none');
+      expect(result.sync.none.length).to.equal(0);
+      expect(result.sync).to.have.property('updated');
+      expect(result.sync.updated.length).to.equal(0);
+      expect(result.sync).to.have.property('created');
+      expect(result.sync.created.length).to.equal(0);
       done();
     });
   });
