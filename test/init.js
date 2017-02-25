@@ -82,6 +82,16 @@ describe('Init', function() {
     var definedModels = Object.keys(DynamoDB.models);
     expect(definedModels).to.have.length(1);
     expect(definedModels).to.contain('Movies');
+
+    expect(DynamoDB.models.Movies).to.have.property('modelName');
+    expect(DynamoDB.models.Movies.modelName).to.equal('Movies');
+
+    var shema = require(process.cwd() + '/test/stubs/schemas/movie');
+    expect(DynamoDB.models.Movies).to.have.property('definition');
+    expect(DynamoDB.models.Movies.definition).to.equal(shema.definition);
+    expect(DynamoDB.models.Movies).to.have.property('options');
+    expect(DynamoDB.models.Movies.options).to.equal(shema.options);
+    expect(DynamoDB.models.Movies).to.have.property('connection');
   });
 
   it('DynamoDB should have the synced table listed', function(done) {

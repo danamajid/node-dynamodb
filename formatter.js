@@ -35,6 +35,14 @@ Formatter.prototype.table = function(tableName, definition, options) {
   };
 };
 
+Formatter.prototype._toDynamoDB = function(raw) {
+  return raw;
+};
+
+Formatter.prototype._fromDynamoDB = function(raw) {
+  return raw;
+};
+
 Formatter.prototype.putItem = function(tableName, rawItem, table) {
   var item = {};
 

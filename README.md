@@ -15,31 +15,18 @@ __Example:__
 
 ```js
 var DynamoDB = require('dynamodb');
-
-var dynamodb = new DynamoDB({
-  env: 'dev',
-  database: 'biem',
-  connection: {
-    db: new AWS.DynamoDB({
-      endpoint: new AWS.Endpoint('http://localhost:4337')
-    }),
-    client: new AWS.DynamoDB.DocumentClient({
-      endpoint: new AWS.Endpoint('http://localhost:4337')
-    })
-  }
-});
 ```
 
 ### Methods
 
-#### dynamodb.model(name, definition, options)
+#### DynamoDB.model(name, definition, options)
 
 Define your model.
 
 __Example:__
 
 ```js
-var Movie = dynamodb.model('Movies', {
+var Movie = DynamoDB.model('Movies', {
   year: {
     type: DynamoDB.types.Number,
     index: DynamoDB.types.Hash
@@ -55,15 +42,35 @@ var Movie = dynamodb.model('Movies', {
 ```
 
 
-#### dynamodb.sync(callback)
+#### DynamoDB.connect(options, callback);
 
-Sync your defined models.
+Connect, and sync your defined models.
 
 __Example:__
 
 ```js
-dynamodb.sync(function(err) {
-  console.log(err);
+DynamoDB.connect({
+  env: 'dev',
+  database: 'biem',
+  connection: {
+    db: new AWS.DynamoDB({
+      endpoint: new AWS.Endpoint('http://localhost:4337')
+    }),
+    client: new AWS.DynamoDB.DocumentClient({
+      endpoint: new AWS.Endpoint('http://localhost:4337')
+    })
+  }
+}, function(err, data) {
+  console.log(data);
+  /*
+  {
+    sync: {
+      none: [],
+      created: ['Movies'],
+      updated: []
+    }
+  }
+  */
 });
 ```
 

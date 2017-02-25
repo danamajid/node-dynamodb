@@ -47,7 +47,30 @@ describe('CRUD operations', function() {
           },
           expectation: {
             code: 'ValidationException',
-            message: 'One or more parameter values were invalid: An AttributeValue may not contain an empty string'
+            message: 'One or more parameter values were invalid: An AttributeValue may not contain an empty string',
+            extraProperties: true
+          }
+        },
+        {
+          input: {
+            year: '',
+            title: 'hello'
+          },
+          expectation: {
+            code: 'ValidationException',
+            message: 'A value provided cannot be converted into a number',
+            extraProperties: true
+          }
+        },
+        {
+          input: {
+            year: new Date(),
+            title: 'Test'
+          },
+          expectation: {
+            code: 'InvalidParameterType',
+            message: 'Expected params.Item[\'year\'].N to be a string',
+            extraProperties: false
           }
         }
       ];
@@ -56,16 +79,20 @@ describe('CRUD operations', function() {
         cases,
         function(testingCase, next) {
           Movie.put(testingCase.input, function(err, result) {
+            expect(err).to.not.be.a('null');
             expect(err).to.have.property('code');
             expect(err.code).to.equal(testingCase.expectation.code);
             expect(err).to.have.property('message');
             expect(err.message).to.equal(testingCase.expectation.message);
-            expect(err).to.have.property('statusCode');
-            expect(err.statusCode).to.equal(400);
-            expect(err).to.have.property('retryable');
-            expect(err.retryable).to.equal(false);
-            expect(err).to.have.property('retryDelay');
-            expect(err.retryDelay).to.equal(0);
+
+            if (testingCase.expectation.extraProperties) {
+              expect(err).to.have.property('statusCode');
+              expect(err.statusCode).to.equal(400);
+              expect(err).to.have.property('retryable');
+              expect(err.retryable).to.equal(false);
+              expect(err).to.have.property('retryDelay');
+              expect(err.retryDelay).to.equal(0);
+            }
 
             expect(result).to.be.a('null');
             next();
@@ -73,6 +100,45 @@ describe('CRUD operations', function() {
         },
         done
       );
+    });
+
+    it('Should allow inserting a new item', function(done) {
+      Movie.put({
+        title: 'A Beautiful Mind',
+        year: 2001
+      }, function(err, result) {
+        expect(err).to.be.a('null');
+        expect(result).to.be.an('object');
+        expect(Object.keys(result)).to.have.length(0);
+        done();
+      });
+    });
+
+    it('Should allow inserting a new item', function(done) {
+      Movie.put({
+        title: 'Office Space',
+        year: 1999
+      }, function(err, result) {
+        expect(err).to.be.a('null');
+        expect(result).to.be.an('object');
+        expect(Object.keys(result)).to.have.length(0);
+        done();
+      });
+    });
+  });
+
+  describe('GET', function() {
+    it('Should allow inserting a new item', function(done) {
+      Movie.get({
+        title: 'Office Space',
+        year: '1999'
+      }, function(err, result) {
+        expect(err).to.be.a('null');
+        expect(result).to.be.an('object');
+        console.log(result);
+        //expect(Object.keys(result)).to.have.length(0);
+        done();
+      });
     });
   });
 });

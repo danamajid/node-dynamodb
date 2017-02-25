@@ -38,7 +38,6 @@ Model.prototype.put = function(details, done) {
 };
 
 Model.prototype.get = function(details, done) {
-  this.logger.trace('Get model');
   this.connection.db.getItem(
     formatter.getItem(this.tableName, details, this.table),
     done
