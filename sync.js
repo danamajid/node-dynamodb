@@ -1,34 +1,33 @@
 var async = require('async');
 
-function Sync(model, connection, logger) {
-  this.model = model;
-  this.connection = connection;
-  this.logger = logger;
-}
+function Sync() {}
 
-Sync.prototype.setupTable = function(done) {
+Sync.prototype.setupTable = function(model, done) {
   var self = this;
 
-  this.connection.db.createTable(this.model.table.schema, function(err) {
-    if (err) {
-      if (err.code === 'ResourceInUseException') {
-        // Table already exists
-        return done();
+  this.connection.db.createTable(
+    model.table.schema,
+      function(err) {
+        if (err) {
+          if (err.code === 'ResourceInUseException') {
+            // Table already exists
+            return done();
+          }
+
+          self.logger.error(err);
+          return done(err);
+        }
+
+        self._waitForTable(model, done);
       }
-
-      self.logger.error(err);
-      done(err);
-    }
-
-    self._waitForTable(done);
-  });
+  );
 };
 
 // Helper method that polls status of a table until it becomes available.
 // Note that this assumes the table name has already been passed through the
 // helper method to namespace it, as this should only be used internally
 // to this service.
-Sync.prototype._waitForTable = function(done, retry) {
+Sync.prototype._waitForTable = function(model, done, retry) {
   var self = this;
 
   if (!retry) {
@@ -36,7 +35,7 @@ Sync.prototype._waitForTable = function(done, retry) {
   }
 
   this.connection.db.describeTable(
-    { TableName: self.model.tableName },
+    { TableName: model.tableName },
     function(err, details) {
       if (err) {
         return done(err);
@@ -59,19 +58,29 @@ Sync.prototype._waitForTable = function(done, retry) {
   );
 };
 
+Sync.prototype.perform = function(instance, callback) {
+  this.models = instance.models;
+  this.connection = instance.connection;
+  this.logger = instance.logger;
+  var self = this;
 
-
-module.exports = function(done) {
-  var models = this.models;
-  var connection = this.dynamodb;
-  var logger = this.logger;
-
-  async.eachSeries(
-    models,
-    function(model, next) {
-      var sync = new Sync(model, connection, logger);
-      sync.setupTable(next);
-    },
-    done
-  );
+  var models = Object.keys(this.models);
+  if (models.length) {
+    async.eachSeries(
+      this.models,
+      function(model, next) {
+        self.setupTable(model, next);
+      },
+      callback
+    );
+  } else {
+    return callback(null, {
+      sync: {
+        updated: 0,
+        created: 0
+      }
+    });
+  }
 };
+
+module.exports = new Sync;

@@ -31,7 +31,6 @@ Model.compile = function(globals) {
 };
 
 Model.prototype.put = function(details, done) {
-  this.logger.trace('Create model');
   this.connection.db.putItem(
     formatter.putItem(this.tableName, details, this.table),
     done

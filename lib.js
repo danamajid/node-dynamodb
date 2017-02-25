@@ -1,5 +1,5 @@
 var Model = require(process.cwd() + '/model');
-var sync = require(process.cwd() + '/sync');
+var Sync = require(process.cwd() + '/sync');
 var types = require(process.cwd() + '/types');
 
 function DynamoDB(details) {
@@ -21,22 +21,19 @@ function DynamoDB(details) {
     child: function() { return this; }
   };
 
-  this.env = details.env;
-  this.dynamodb = details.dynamodb;
-  this.database = details.database;
   this.models = {};
 
   return this;
 }
 
-DynamoDB.types = types;
+DynamoDB.prototype.types = types;
 
-DynamoDB.prototype.model = function(name, definition, options) {
+DynamoDB.prototype.model = function(name, schema) {
   var model = Model.compile({
     modelName: name,
-    definition: definition,
-    options: options,
-    connection: this.dynamodb,
+    definition: schema.definition,
+    options: schema.options,
+    connection: this.connection,
     env: this.env,
     database: this.database,
     logger: this.logger
@@ -47,6 +44,19 @@ DynamoDB.prototype.model = function(name, definition, options) {
   return model;
 };
 
-DynamoDB.prototype.sync = sync;
+DynamoDB.prototype.connect = function(options, callback) {
+  this.connection = options.connection;
+  this.database = options.database;
+  this.env = options.env;
 
-module.exports = DynamoDB;
+  Sync.perform(this, callback);
+};
+
+DynamoDB.prototype.Schema = function(definition, options) {
+  return {
+    definition: definition,
+    options: options
+  };
+};
+
+module.exports = new DynamoDB;

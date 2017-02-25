@@ -3,52 +3,56 @@ var AWS = require('aws-sdk');
 AWS.config.update({ accessKeyId: 'key', secretAccessKey: 'secret', region: 'us-east-1' });
 
 var DynamoDB = require(process.cwd() + '/lib');
-var user = require(process.cwd() + '/test/dummy/user');
-
-var instance;
 describe('Init', function() {
-  before('Init DynamoDB', function() {
-    instance = new DynamoDB({
-      env: 'dev',
-      database: 'biem',
-      dynamodb: {
-        db: new AWS.DynamoDB({
-          endpoint: new AWS.Endpoint('http://localhost:8000')
-        }),
-        client: new AWS.DynamoDB.DocumentClient({
-          endpoint: new AWS.Endpoint('http://localhost:8000')
-        })
-      }
-    });
-  });
+  var options = {
+    env: 'dev',
+    database: 'biem',
+    connection: {
+      db: new AWS.DynamoDB({
+        endpoint: new AWS.Endpoint('http://localhost:4337')
+      }),
+      client: new AWS.DynamoDB.DocumentClient({
+        endpoint: new AWS.Endpoint('http://localhost:4337')
+      })
+    }
+  };
 
-  it('Should have the appropriate env, database and models set', function() {
-    expect(instance).to.have.property('env');
-    expect(instance.env).to.equal('dev');
-    expect(instance).to.have.property('database');
-    expect(instance.database).to.equal('biem');
-    expect(instance).to.have.property('dynamodb');
-    expect(instance.dynamodb).to.have.property('db');
-    expect(instance.dynamodb).to.have.property('client');
-    expect(Object.keys(instance.models)).to.have.length(0);
-  });
-
-  it('Should update models dictionary when a model gets defined', function(done) {
-    instance.model('Users', user.definition, user.options);
-    var models = Object.keys(instance.models);
-    expect(models).to.have.length(1);
-    expect(models).to.include('Users');
-    done();
-  });
-
-  it('Should sync models', function(done) {
-    instance.sync(function(err) {
+  before('Init DynamoDB', function(done) {
+    DynamoDB.connect(options, function(err, result) {
       expect(err).to.be.a('null');
+      expect(result).to.have.property('sync');
+      expect(result.sync).to.have.property('updated');
+      expect(result.sync.updated).to.equal(0);
+      expect(result.sync).to.have.property('created');
+      expect(result.sync.created).to.equal(0);
       done();
     });
   });
 
-  after(function() {
-    global.instance = instance;
+  it('Should have the appropriate env, database and models set', function() {
+    expect(DynamoDB).to.have.property('env');
+    expect(DynamoDB.env).to.equal('dev');
+    expect(DynamoDB).to.have.property('database');
+    expect(DynamoDB.database).to.equal('biem');
+    expect(DynamoDB).to.have.property('connection');
+    expect(DynamoDB.connection).to.have.property('db');
+    expect(DynamoDB.connection).to.have.property('client');
+    expect(Object.keys(DynamoDB.models)).to.have.length(0);
+  });
+
+  it('Should update models dictionary when a model gets defined', function(done) {
+    require(process.cwd() + '/test/stubs/models/movie');
+
+    var models = Object.keys(DynamoDB.models);
+    expect(models).to.have.length(1);
+    expect(models).to.include('Movies');
+    done();
+  });
+
+  it('Should sync models after model is defined', function(done) {
+    DynamoDB.connect(options, function(err, results) {
+      expect(err).to.be.a('null');
+      done();
+    });
   });
 });

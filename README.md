@@ -8,7 +8,7 @@ Instantiate DynamoDB.
 
 * `env` - The environment
 * `database` - The environment
-* `dynamodb` - An instance of `new AWS.DynamoDB()`
+* `connection` - Object with an instance of `new AWS.DynamoDB` for `db` and `new AWS.DynamoDB.DocumentClient` for `client`
 * `logger` - Optional interface that implements `info`, `warn`, `error`, `fatal`, `debug`, `trace` and `child`.
 
 __Example:__
@@ -19,9 +19,14 @@ var DynamoDB = require('dynamodb');
 var dynamodb = new DynamoDB({
   env: 'dev',
   database: 'biem',
-  dynamodb: new AWS.DynamoDB({
-    endpoint: new AWS.Endpoint('http://localhost:8000')
-  })
+  connection: {
+    db: new AWS.DynamoDB({
+      endpoint: new AWS.Endpoint('http://localhost:4337')
+    }),
+    client: new AWS.DynamoDB.DocumentClient({
+      endpoint: new AWS.Endpoint('http://localhost:4337')
+    })
+  }
 });
 ```
 
