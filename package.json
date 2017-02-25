@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha -c test/**"
+    "test": "./node_modules/mocha/bin/mocha -c test/init test/**"
   },
   "author": "",
   "license": "ISC",

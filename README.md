@@ -76,7 +76,8 @@ __Example:__
 
 ```js
 Movie.put({
-  title: 'A beautiful mind'
+  year: 2001,
+  title: 'A Beautiful Mind'
 }, done);
 ```
 

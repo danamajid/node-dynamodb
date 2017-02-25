@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
 var AWS = require('aws-sdk');
+var fixture = require(process.cwd() + '/test/fixtures');
 AWS.config.update({ accessKeyId: 'key', secretAccessKey: 'secret', region: 'us-east-1' });
 
 var DynamoDB = require(process.cwd() + '/lib');
@@ -9,15 +10,16 @@ describe('Init', function() {
     database: 'biem',
     connection: {
       db: new AWS.DynamoDB({
-        endpoint: new AWS.Endpoint('http://localhost:4337')
+        endpoint: new AWS.Endpoint(fixture.url)
       }),
       client: new AWS.DynamoDB.DocumentClient({
-        endpoint: new AWS.Endpoint('http://localhost:4337')
+        endpoint: new AWS.Endpoint(fixture.url)
       })
     }
   };
+  var model;
 
-  before('Init DynamoDB', function(done) {
+  before('Init DynamoDB before models', function(done) {
     DynamoDB.connect(options, function(err, result) {
       expect(err).to.be.a('null');
       expect(result).to.have.property('sync');
@@ -29,6 +31,10 @@ describe('Init', function() {
       expect(result.sync.created.length).to.equal(0);
       done();
     });
+  });
+
+  before('Clear all tables', function(done) {
+    fixture.clear(DynamoDB.connection.db, done);
   });
 
   it('Should have the appropriate env, database and models set', function() {
@@ -43,7 +49,7 @@ describe('Init', function() {
   });
 
   it('Should update models dictionary when a model gets defined', function(done) {
-    require(process.cwd() + '/test/stubs/models/movie');
+    model = require(process.cwd() + '/test/stubs/models/movie');
 
     var models = Object.keys(DynamoDB.models);
     expect(models).to.have.length(1);
@@ -60,7 +66,30 @@ describe('Init', function() {
       expect(result.sync).to.have.property('updated');
       expect(result.sync.updated.length).to.equal(0);
       expect(result.sync).to.have.property('created');
-      expect(result.sync.created.length).to.equal(0);
+      expect(result.sync.created.length).to.equal(1);
+      done();
+    });
+  });
+
+  it('Models dictionary should now be updated', function() {
+    expect(DynamoDB).to.have.property('env');
+    expect(DynamoDB.env).to.equal('dev');
+    expect(DynamoDB).to.have.property('database');
+    expect(DynamoDB.database).to.equal('biem');
+    expect(DynamoDB).to.have.property('connection');
+    expect(DynamoDB.connection).to.have.property('db');
+    expect(DynamoDB.connection).to.have.property('client');
+    var definedModels = Object.keys(DynamoDB.models);
+    expect(definedModels).to.have.length(1);
+    expect(definedModels).to.contain('Movies');
+  });
+
+  it('DynamoDB should have the synced table listed', function(done) {
+    DynamoDB.connection.db.listTables({}, function(err, data) {
+      expect(err).to.be.a('null');
+      expect(data).to.have.property('TableNames');
+      expect(data.TableNames.length).to.equal(1);
+      expect(data.TableNames).to.contain(options.env + '.' + options.database + '.' + model.modelName);
       done();
     });
   });
