@@ -128,15 +128,13 @@ describe('CRUD operations', function() {
   });
 
   describe('GET', function() {
-    it('Should allow inserting a new item', function(done) {
+    it('Should get an existing item by title and year', function(done) {
       Movie.get({
         title: 'Office Space',
         year: '1999'
       }, function(err, result) {
         expect(err).to.be.a('null');
         expect(result).to.be.an('object');
-        console.log(result);
-        //expect(Object.keys(result)).to.have.length(0);
         done();
       });
     });
