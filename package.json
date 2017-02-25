@@ -2,12 +2,12 @@
   "name": "dynamodb",
   "version": "1.0.0",
   "description": "",
-  "main": "lib.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha -c test/init test/**"
+    "test": "./node_modules/mocha/bin/mocha -c test/init test/unit/** test/integration/**"
   },
   "author": "",
   "license": "ISC",
