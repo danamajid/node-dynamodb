@@ -135,6 +135,10 @@ describe('CRUD operations', function() {
       }, function(err, result) {
         expect(err).to.be.a('null');
         expect(result).to.be.an('object');
+        expect(result).to.have.property('title');
+        expect(result.title).to.equal('Office Space');
+        expect(result).to.have.property('year');
+        expect(result.year).to.equal(1999);
         done();
       });
     });

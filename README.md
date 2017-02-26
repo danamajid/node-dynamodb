@@ -100,7 +100,18 @@ __Example:__
 Movie.get({
   year: 2001,
   title: 'A Beautiful Mind'
-}, done);
+}, function(err, result) {
+  done();
+});
+```
+
+__Where `result`:__
+
+```js
+{
+  title: 'A Beautiful Mind',
+  year: 2001
+}
 ```
 
 #### Author
