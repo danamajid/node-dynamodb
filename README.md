@@ -1,4 +1,4 @@
-## DynamoDB
+## node-dynamodb [![CircleCI](https://circleci.com/gh/danamajid/node-dynamodb.svg?style=svg&circle-token=ecce8b4678b87c308c3914f63ea9d21cddd27f9a)](https://circleci.com/gh/danamajid/node-dynamodb)
 
 A Mongoose-like API for DynamoDB
 
@@ -14,7 +14,7 @@ Instantiate DynamoDB.
 __Example:__
 
 ```js
-var DynamoDB = require('dynamodb');
+var DynamoDB = require('node-dynamodb');
 ```
 
 ### Methods
@@ -26,7 +26,7 @@ Define your model.
 __Example:__
 
 ```js
-var Movie = DynamoDB.model('Movies', {
+var Movie = DynamoDB.model('Movies', new DynamoDB.Schema({
   year: {
     type: DynamoDB.types.Number,
     index: DynamoDB.types.Hash
@@ -38,7 +38,7 @@ var Movie = DynamoDB.model('Movies', {
 }, {
   readCapacity: 10,
   writeCapacity: 20
-});
+}));
 ```
 
 
