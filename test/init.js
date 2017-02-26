@@ -86,11 +86,11 @@ describe('Init', function() {
     expect(DynamoDB.models.Movies).to.have.property('modelName');
     expect(DynamoDB.models.Movies.modelName).to.equal('Movies');
 
-    var shema = require(process.cwd() + '/test/stubs/schemas/movie');
+    var schema = require(process.cwd() + '/test/stubs/schemas/movie');
     expect(DynamoDB.models.Movies).to.have.property('definition');
-    expect(DynamoDB.models.Movies.definition).to.equal(shema.definition);
+    expect(DynamoDB.models.Movies.definition).to.equal(schema.definition);
     expect(DynamoDB.models.Movies).to.have.property('options');
-    expect(DynamoDB.models.Movies.options).to.equal(shema.options);
+    expect(DynamoDB.models.Movies.options).to.equal(schema.options);
     expect(DynamoDB.models.Movies).to.have.property('connection');
   });
 
