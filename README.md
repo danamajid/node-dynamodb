@@ -1,15 +1,8 @@
 ## node-dynamodb [![CircleCI](https://circleci.com/gh/danamajid/node-dynamodb.svg?style=svg&circle-token=ecce8b4678b87c308c3914f63ea9d21cddd27f9a)](https://circleci.com/gh/danamajid/node-dynamodb)
 
-A Mongoose-like API for DynamoDB
+A (work-in-progress) Mongoose-like API for DynamoDB
 
-### new DynamoDB()
-
-Instantiate DynamoDB.
-
-* `env` - The environment
-* `database` - The environment
-* `connection` - Object with an instance of `new AWS.DynamoDB` for `db` and `new AWS.DynamoDB.DocumentClient` for `client`
-* `logger` - Optional interface that implements `info`, `warn`, `error`, `fatal`, `debug`, `trace` and `child`.
+### DynamoDB
 
 __Example:__
 
@@ -19,7 +12,7 @@ var DynamoDB = require('node-dynamodb');
 
 ### Methods
 
-#### DynamoDB.model(name, definition, options)
+#### DynamoDB.model(schema, options)
 
 Define your model.
 
@@ -45,6 +38,11 @@ var Movie = DynamoDB.model('Movies', new DynamoDB.Schema({
 #### DynamoDB.connect(options, callback);
 
 Connect, and sync your defined models.
+
+* `env` - The environment
+* `database` - The environment
+* `connection` - Object with an instance of `new AWS.DynamoDB` for `db` and `new AWS.DynamoDB.DocumentClient` for `client`
+* `logger` - Optional interface that implements `info`, `warn`, `error`, `fatal`, `debug`, `trace` and `child`.
 
 __Example:__
 
@@ -83,6 +81,19 @@ __Example:__
 
 ```js
 Movie.put({
+  year: 2001,
+  title: 'A Beautiful Mind'
+}, done);
+```
+
+#### Movie.get(details, callback);
+
+GET an item.
+
+__Example:__
+
+```js
+Movie.get({
   year: 2001,
   title: 'A Beautiful Mind'
 }, done);
