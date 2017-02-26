@@ -60,16 +60,20 @@ DynamoDB.connect({
   }
 }, function(err, data) {
   console.log(data);
-  /*
-  {
-    sync: {
-      none: [],
-      created: ['Movies'],
-      updated: []
-    }
-  }
-  */
+  done();
 });
+```
+
+__Where `data`:__
+
+```js
+{
+  sync: {
+    none: [], // Models that were already created and in sync
+    created: ['Movies'], // Models that were just created
+    updated: [] // Models that were only synced
+  }
+}
 ```
 
 
