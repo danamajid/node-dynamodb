@@ -27,6 +27,15 @@ var Movie = DynamoDB.model('Movies', new DynamoDB.Schema({
   title: {
     type: DynamoDB.types.String,
     index: DynamoDB.types.Range
+  },
+  description: {
+    type: DynamoDB.types.String
+  },
+  actors: {
+    type: DynamoDB.types.StringSet
+  },
+  rating: {
+    type: DynamoDB.types.Number
   }
 }, {
   readCapacity: 10,
@@ -86,7 +95,10 @@ __Example:__
 ```js
 Movie.put({
   year: 2001,
-  title: 'A Beautiful Mind'
+  title: 'A Beautiful Mind',
+  description: 'Hello world',
+  actors: ['Al Pacino', 'Marlon Brando'],
+  rating: 9.1
 }, done);
 ```
 
@@ -110,8 +122,30 @@ __Where `result`:__
 ```js
 {
   title: 'A Beautiful Mind',
-  year: 2001
+  year: 2001,
+  description: 'Hello world',
+  actors: ['Al Pacino', 'Marlon Brando'],
+  rating: 9.1
 }
+```
+
+#### Movie.batchPut(details, callback);
+
+Batch put max 25 items.
+
+__Example:__
+
+```js
+Movie.batchPut([{
+  year: 2001,
+  title: 'A Beautiful Mind',
+  description: 'Hello world',
+  actors: ['Al Pacino', 'Marlon Brando'],
+  rating: 9.1
+}, {
+  title: 'Office Space',
+  year: 1999
+}], done);
 ```
 
 #### Author
