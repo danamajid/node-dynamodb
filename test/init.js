@@ -1,26 +1,12 @@
 var expect = require('chai').expect;
-var AWS = require('aws-sdk');
 var fixture = require(process.cwd() + '/test/fixtures');
-AWS.config.update({ accessKeyId: 'key', secretAccessKey: 'secret', region: 'us-east-1' });
 
 var DynamoDB = require(process.cwd() + '/lib');
 describe('Init', function() {
-  var options = {
-    env: 'dev',
-    database: 'biem',
-    connection: {
-      db: new AWS.DynamoDB({
-        endpoint: new AWS.Endpoint(fixture.url)
-      }),
-      client: new AWS.DynamoDB.DocumentClient({
-        endpoint: new AWS.Endpoint(fixture.url)
-      })
-    }
-  };
   var model;
 
   before('Init DynamoDB before models', function(done) {
-    DynamoDB.connect(options, function(err, result) {
+    DynamoDB.connect(fixture.dynamodb.options, function(err, result) {
       expect(err).to.be.a('null');
       expect(result).to.have.property('sync');
       expect(result.sync).to.have.property('none');
@@ -58,7 +44,7 @@ describe('Init', function() {
   });
 
   it('Should sync models after model is defined', function(done) {
-    DynamoDB.connect(options, function(err, result) {
+    DynamoDB.connect(fixture.dynamodb.options, function(err, result) {
       expect(err).to.be.a('null');
       expect(result).to.have.property('sync');
       expect(result.sync).to.have.property('none');
@@ -99,7 +85,7 @@ describe('Init', function() {
       expect(err).to.be.a('null');
       expect(data).to.have.property('TableNames');
       expect(data.TableNames.length).to.equal(1);
-      expect(data.TableNames).to.contain(options.env + '.' + options.database + '.' + model.modelName);
+      expect(data.TableNames).to.contain(fixture.dynamodb.options.env + '.' + fixture.dynamodb.options.database + '.' + model.modelName);
       done();
     });
   });
