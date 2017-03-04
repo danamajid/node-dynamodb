@@ -11,7 +11,8 @@ describe('CRUD operations', function() {
       var cases = [
         { }, // Empty
         { year: 2017 }, // Only specifying the index key,
-        { title: 'Hello World' } // Only specifying the range key
+        { title: 'Hello World' }, // Only specifying the range key
+        { description: 'What' } // Only specifying non-key field
       ];
 
       async.each(
@@ -103,44 +104,114 @@ describe('CRUD operations', function() {
     });
 
     it('Should allow inserting a new item', function(done) {
-      Movie.put({
+      var cases = [{
         title: 'A Beautiful Mind',
         year: 2001
-      }, function(err, result) {
-        expect(err).to.be.a('null');
-        expect(result).to.be.an('object');
-        expect(Object.keys(result)).to.have.length(0);
-        done();
-      });
-    });
-
-    it('Should allow inserting a new item', function(done) {
-      Movie.put({
+      }, {
         title: 'Office Space',
-        year: 1999
-      }, function(err, result) {
-        expect(err).to.be.a('null');
-        expect(result).to.be.an('object');
-        expect(Object.keys(result)).to.have.length(0);
-        done();
-      });
+        year: 1999,
+        description: 'Hello world'
+      }];
+
+      async.each(
+        cases,
+        function(input, next) {
+          Movie.put(input, function(err, result) {
+            expect(err).to.be.a('null');
+            expect(result).to.be.an('object');
+            expect(Object.keys(result)).to.have.length(0);
+            next();
+          });
+        }, done
+      );
     });
   });
 
   describe('GET', function() {
-    it('Should get an existing item by title and year', function(done) {
-      Movie.get({
+    it('Should return validation error when no key/not all keys are provided ', function(done) {
+      var cases = [{
+        // Empty
+      }, {
+        title: 'Office Space'
+      }, {
+        year: 1999
+      }, {
+        description: 'Hello world'
+      }];
+
+      async.each(
+        cases,
+        function(input, next) {
+          Movie.get(input, function(err) {
+            expect(err).to.not.be.a('null');
+            expect(err.code).to.equal('ValidationException');
+            expect(err.message).to.equal('The number of conditions on the keys is invalid');
+            next();
+          });
+        },
+        done
+      );
+    });
+
+    it('Should return null if no match is found', function(done) {
+      var cases = [{
+        title: 'The Office',
+        year: 1999
+      }, {
+        title: 'Office Space',
+        year: 2000
+      }];
+
+      async.each(
+        cases,
+        function(input, next) {
+          Movie.get(input, function(err, result) {
+            expect(err).to.be.a('null');
+            expect(result).to.be.a('null');
+            next();
+          });
+        },
+        done
+      );
+    });
+
+    it('Should get an existing item by combination of keys - returning additional fields', function(done) {
+      var cases = [{
         title: 'Office Space',
         year: '1999'
-      }, function(err, result) {
-        expect(err).to.be.a('null');
-        expect(result).to.be.an('object');
-        expect(result).to.have.property('title');
-        expect(result.title).to.equal('Office Space');
-        expect(result).to.have.property('year');
-        expect(result.year).to.equal(1999);
-        done();
-      });
+      }, {
+        title: 'Office Space',
+        year: 1999
+      }, {
+        title: 'A Beautiful Mind',
+        year: 2001
+      }];
+
+      async.each(
+        cases,
+        function(input, next) {
+          Movie.get(input, function(err, result) {
+            expect(err).to.be.a('null');
+            expect(result).to.be.an('object');
+            expect(result).to.have.property('title');
+            expect(result.title).to.equal(input.title);
+
+            var year = (typeof input.year === 'string' ? parseInt(input.year, 10) : input.year);
+            expect(result).to.have.property('year');
+            expect(result.year).to.equal(year);
+
+            if (result.title === 'Office Space') {
+              expect(result).to.have.property('description');
+              expect(result.description).to.equal('Hello world');
+            } else {
+              expect(result).to.not.have.property('description');
+            }
+
+            next();
+          });
+        },
+        done
+      );
     });
   });
 });
