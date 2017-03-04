@@ -9,6 +9,15 @@ module.exports = {
     title: {
       type: DynamoDB.types.String,
       index: DynamoDB.types.Range
+    },
+    description: {
+      type: DynamoDB.types.String
+    },
+    actors: {
+      type: DynamoDB.types.StringSet
+    },
+    rating: {
+      type: DynamoDB.types.Number
     }
   },
   options: {
