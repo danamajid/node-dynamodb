@@ -8,3 +8,5 @@ test:
   pre:
     - docker build -t dynamodb ./test/server
     - docker run -d -p 4337:4337 dynamodb
+  post:
+    - npm run coverage
