@@ -111,6 +111,12 @@ describe('CRUD operations', function() {
         title: 'Office Space',
         year: 1999,
         description: 'Hello world'
+      }, {
+        title: 'The Godfather',
+        year: 1999,
+        description: 'Hello world',
+        actors: ['Al Pacino', 'Marlon Brando'],
+        rating: 9.1
       }];
 
       async.each(
@@ -185,6 +191,9 @@ describe('CRUD operations', function() {
       }, {
         title: 'A Beautiful Mind',
         year: 2001
+      }, {
+        title: 'The Godfather',
+        year: 1999
       }];
 
       async.each(
@@ -203,6 +212,16 @@ describe('CRUD operations', function() {
             if (result.title === 'Office Space') {
               expect(result).to.have.property('description');
               expect(result.description).to.equal('Hello world');
+            } else if (result.title === 'The Godfather') {
+              expect(result).to.have.property('description');
+              expect(result.description).to.equal('Hello world');
+              expect(result).to.have.property('rating');
+              expect(result.rating).to.equal(9.1);
+              expect(result).to.have.property('actors');
+              expect(result.actors).to.be.an('array');
+              expect(result.actors).to.have.length(2);
+              expect(result.actors).to.contain('Al Pacino');
+              expect(result.actors).to.contain('Marlon Brando');
             } else {
               expect(result).to.not.have.property('description');
             }
